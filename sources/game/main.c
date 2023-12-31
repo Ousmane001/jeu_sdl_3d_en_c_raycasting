@@ -6,12 +6,16 @@ int main(int argc, char* argv[]){
     printf("debut du test de fenetre\n\n");
 
     int** map = NULL;
-    int i,j,nb_ligne,nb_colonne;
-    SDL_Point joueur;
+    int i,j,nb_ligne,nb_colonne, debut_vision = 0, ancienne_debut_vision;
+    SDL_Point joueur,ancienne_position, vecteur_position = {100,100};
+
     joueur.x =2;
     joueur.y =2;
+    
+    ancienne_position.x = joueur.x;
+    ancienne_position.y = joueur.y;
 
-    if(scanner_une_map("../sources/gestion_du_map/fichier_map.csv",&nb_ligne,&nb_colonne) != MAP_CORRECT){
+    if(scanner_une_map(FICHIER_MAP,&nb_ligne,&nb_colonne) != MAP_CORRECT){
     printf("map incorrect\n");
   }
   else{
@@ -24,7 +28,7 @@ int main(int argc, char* argv[]){
     else{
       printf("allocation correcte\n");
       
-      if(charger_une_map("../sources/gestion_du_map/fichier_map.csv",map) != MATRICE_CHARGEE_AVEC_SUCCES){
+      if(charger_une_map(FICHIER_MAP,map) != MATRICE_CHARGEE_AVEC_SUCCES){
         printf("erreur de chargement\n");
       
       }
@@ -54,7 +58,7 @@ int main(int argc, char* argv[]){
     }
     
     // gestion d'evenement:
-    if(afficher_une_map(rendu,map,nb_ligne,nb_colonne,30,30) != MAP_AFFICHEE_AVEC_SUCCES){
+    if(afficher_une_map(rendu,map,nb_ligne,nb_colonne,0,0) != MAP_AFFICHEE_AVEC_SUCCES){
       printf("erreur d'affichage de la map\n");
     }
     else{
@@ -72,12 +76,19 @@ int main(int argc, char* argv[]){
                 break;
               
               case SDL_KEYDOWN: 
-                //sinon : 
-                  if(deplacer_joueur(evenement,map,nb_ligne,nb_colonne,&joueur) != JOUEUR_NE_BOUGE_PAS){
-                    afficher_une_map(rendu,map,nb_ligne,nb_colonne,30,30);
-                    afficher_joueur(rendu,&joueur);
-                    SDL_RenderPresent(rendu);
-                  }
+                afficher_une_map(rendu,map,nb_ligne,nb_colonne,0,0);
+                ancienne_debut_vision = debut_vision;
+                if(deplacer_joueur(evenement,map,nb_ligne,nb_colonne,&joueur,&ancienne_position,&debut_vision) == JOUEUR_A_BOUGE){
+
+
+                effacer_ancienne_position_joueur(rendu,&ancienne_position);
+                dessiner_ou_supprimer_vision_joueur(rendu,&ancienne_position,ancienne_debut_vision,EFFACEMENT_RAYON);
+
+
+                afficher_joueur(rendu,&joueur);
+                dessiner_ou_supprimer_vision_joueur(rendu,&joueur,debut_vision,DESSIN_RAYON);
+
+                } 
 
               default:
                 break;

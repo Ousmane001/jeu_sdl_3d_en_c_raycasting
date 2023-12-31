@@ -6,7 +6,7 @@
     #include "../../includes_de_SDL/entetes_sdl.h"
 
     
-    #define FICHIER_MAP "fichier_map.csv"
+    #define FICHIER_MAP "sources/gestion_du_map/fichier_map.csv"
     #define TAILLE_MAX_TAMPON 1024
     #define ERREUR_OUVERTURE -1
     #define ERREUR_LECTURE -2

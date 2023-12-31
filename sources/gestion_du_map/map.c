@@ -131,13 +131,13 @@ int afficher_une_map(SDL_Renderer* rendu, int** map, int nombre_de_ligne, int no
 
   // on efface d'abord la fenetre : 
   COULEUR_NOIRE(rendu);
-  SDL_RenderClear(rendu);
+  //SDL_RenderClear(rendu);
 
   for(compteur_ligne = 0; compteur_ligne < nombre_de_ligne; compteur_ligne++){
-    rectangle.y = compteur_ligne * TAILLE_MUR;
+    rectangle.y = (compteur_ligne+debut_y) * TAILLE_MUR;
 
     for(compteur_colonne = 0; compteur_colonne < nombre_de_colonne; compteur_colonne++){
-        rectangle.x = compteur_colonne * TAILLE_MUR;
+        rectangle.x = (compteur_colonne+debut_x) * TAILLE_MUR;
 
         // s'il s'agit d'un mur :
         if(map[compteur_ligne][compteur_colonne] == OBSTACLE){
