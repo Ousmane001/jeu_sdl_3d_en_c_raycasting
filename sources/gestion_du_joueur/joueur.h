@@ -6,6 +6,7 @@
     #include <stdio.h>
     #include <stdlib.h>
     
+    #define ABS(x) (x >= 0)? (x):(-x)
     #define PAS_DU_JOUEUR_PIXEL 15
     #define PAS_DU_JOUEUR_MAP 1
     #define ERREUR_EVENEMENT -1
@@ -27,6 +28,14 @@
     #define PI_DEGRE 180
     #define DESSIN_RAYON 1
     #define EFFACEMENT_RAYON 0
+    #define ECHEC_POSITION -4
+    #define POSITION_SUCCES  0
+    #define COORDONNEE_DECREMENTEE 0
+    #define OUI 0
+    #define NON -5
+    #define INCREMENTATION 1
+    #define DECREMENTATION 0
+    #define NB_TYPE_INTERSECTION 2
 
     /**************************STRUCTURE DU JOUEUR*********************/
 
@@ -45,6 +54,14 @@
     int tracer_effacer_un_rayon(SDL_Renderer* rendu, SDL_Point* origine, SDL_Point* extremite, int mode);
     int dessiner_ou_supprimer_vision_joueur(SDL_Renderer* rendu, SDL_Point* origine, int debut_vision, int mode);
     double conversion_radian_angle(int angle_degre);
+
+    int position_du_centre(SDL_Point* position, SDL_Point*  position_du_centre);
+    int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremite, int** map);
+    int incrementer_ou_decrementer_une_coordonnee(int coordonnee, int mode);
+    int est_ce_un_mur(int coordonnee_x, int coordonnee_y, int** map);
+    int intersection_verticale(int coordonnee_x, int angle);
+    int intersection_horizontale(int coordonnee_y, int angle);
+
 #endif
 
 
