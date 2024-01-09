@@ -24,6 +24,7 @@
     #define MAP_AFFICHEE_AVEC_SUCCES 0
     #define ERREUR_AFFICHAGE_MAP -9
     #define MAP_DETRUITE_AVEC_SUCCES 0
+    #define ESPACE_VIDE 0
 
 
 

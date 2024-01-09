@@ -18,7 +18,7 @@ int deplacer_joueur(SDL_Event evenement, int** map, int nb_lignes, int nb_colonn
             // verification de la matrice pour eviter des erreurs de segmentation :
             if(position_joueur->x > INDICE_MIN){
                 // si le joueur peut se déplacer vers le haut ou vers l'avant :
-                if(map[position_joueur->y][position_joueur->x - PAS_DU_JOUEUR_MAP] != OBSTACLE){
+                if(map[position_joueur->y][position_joueur->x - PAS_DU_JOUEUR_MAP] == ESPACE_VIDE){
                     if(sauvegarder_ancienne_position(position_joueur,ancienne_position) != POSITION_SAUVEGARDEE_AVEC_SUCCES){
                         printf("Erreur de sauvegarde: le joueur ne se deplacera pas !\n");
                         return JOUEUR_NE_BOUGE_PAS;
@@ -38,7 +38,7 @@ int deplacer_joueur(SDL_Event evenement, int** map, int nb_lignes, int nb_colonn
             // verification de la matrice pour eviter des erreurs de segmentation :
             if((position_joueur->x + PAS_DU_JOUEUR_MAP) < nb_colonnes){
                 // si le joueur veut reculer :
-                if(map[position_joueur->y][position_joueur->x + PAS_DU_JOUEUR_MAP] != OBSTACLE){
+                if(map[position_joueur->y][position_joueur->x + PAS_DU_JOUEUR_MAP] == ESPACE_VIDE){
                     if(sauvegarder_ancienne_position(position_joueur,ancienne_position) != POSITION_SAUVEGARDEE_AVEC_SUCCES){
                         printf("Erreur de sauvegarde: le joueur ne se deplacera pas !\n");
                         return JOUEUR_NE_BOUGE_PAS;
@@ -56,7 +56,7 @@ int deplacer_joueur(SDL_Event evenement, int** map, int nb_lignes, int nb_colonn
             printf("le joueur est allee vers la gauche\nmatrice[%d][%d] = %d\n",position_joueur->x,position_joueur->y,map[position_joueur->y][position_joueur->x]);
             if(position_joueur->y >= PAS_DU_JOUEUR_MAP){
                 // si le joueur se dirige vers la gauche: 
-                if(map[position_joueur->y - PAS_DU_JOUEUR_MAP][position_joueur->x] != OBSTACLE) {
+                if(map[position_joueur->y - PAS_DU_JOUEUR_MAP][position_joueur->x] == ESPACE_VIDE) {
                     if(sauvegarder_ancienne_position(position_joueur,ancienne_position) != POSITION_SAUVEGARDEE_AVEC_SUCCES){
                         printf("Erreur de sauvegarde: le joueur ne se deplacera pas !\n");
                         return JOUEUR_NE_BOUGE_PAS;
@@ -73,7 +73,7 @@ int deplacer_joueur(SDL_Event evenement, int** map, int nb_lignes, int nb_colonn
             printf("le joueur est allee vers la droite\nmatrice[%d][%d] = %d\n",position_joueur->x,position_joueur->y,map[position_joueur->y][position_joueur->x]);
             if((position_joueur->y + PAS_DU_JOUEUR_MAP) < nb_lignes){
                 // si le joueur se dirige vers la droite :
-                if(map[position_joueur->y + 1][position_joueur->x] != OBSTACLE){
+                if(map[position_joueur->y + 1][position_joueur->x] == ESPACE_VIDE){
                     if(sauvegarder_ancienne_position(position_joueur,ancienne_position) != POSITION_SAUVEGARDEE_AVEC_SUCCES){
                         printf("Erreur de sauvegarde: le joueur ne se deplacera pas !\n");
                         return JOUEUR_NE_BOUGE_PAS;
@@ -193,7 +193,7 @@ int tracer_effacer_un_rayon(SDL_Renderer* rendu, SDL_Point* origine, SDL_Point* 
             return ECHEC_DESSIN;
         }
         
-        SDL_RenderDrawLine(rendu,origine->x * TAILLE_JOUEUR +TAILLE_JOUEUR/2,origine->y * TAILLE_JOUEUR+TAILLE_JOUEUR/2,extremite->x,extremite->y);
+        SDL_RenderDrawLine(rendu,origine->x,origine->y,extremite->x,extremite->y);
         SDL_RenderPresent(rendu);
         return DESSIN_REUSSI;
     }
@@ -225,6 +225,259 @@ int dessiner_ou_supprimer_vision_joueur(SDL_Renderer* rendu, SDL_Point* origine,
 double conversion_radian_angle(int angle_degre){
     double angle_randian = angle_degre * M_PI/PI_DEGRE;
     return angle_randian;
+}
+
+/*-------------------------------------------------------------------------------------------------------------*/
+
+int position_du_centre(SDL_Point* position, SDL_Point*  position_du_centre){
+    
+    if((position == NULL) || (position_du_centre == NULL)){
+        printf("Erreur: les positions envoyees en argument de la fonction position_du_centre sont non valides\n");
+        return ECHEC_POSITION;
+    }
+    else{
+        position_du_centre->x = position->x*TAILLE_JOUEUR + TAILLE_JOUEUR/2;
+        position_du_centre->y = position->y*TAILLE_JOUEUR + TAILLE_JOUEUR/2;
+        return POSITION_SUCCES;
+    }
+    
+}
+
+/*-------------------------------------------------------------------------------------------------------------*/
+
+int incrementer_ou_decrementer_une_coordonnee(int coordonnee, int mode){
+    while(coordonnee % TAILLE_JOUEUR != COORDONNEE_DECREMENTEE){
+        if(mode == DECREMENTATION)
+            coordonnee--;
+        else if (mode == INCREMENTATION)
+            coordonnee++;
+        else{
+            printf("veuillez choisir votre mode : soit une INCREMENTATION ou soit un DECREMENTATION\n");
+            printf("Arret du programme ! changez votre mode et reessayer !\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    return coordonnee;
+}
+
+/*-------------------------------------------------------------------------------------------------------------*/
+
+int est_ce_un_mur(int coordonnee_x, int coordonnee_y, int** map){
+
+    if((map == NULL)){
+        printf("Erreur: map non valide dans la fonction est_ce_un_mur\nArret automatique du programme\n");
+        exit(EXIT_FAILURE);
+    }
+    else{
+        coordonnee_x = coordonnee_x/TAILLE_JOUEUR;
+        coordonnee_y = coordonnee_y/TAILLE_JOUEUR;
+        printf("coordonnee_x = %d et coordonnee_y = %d\n",coordonnee_x,coordonnee_y);
+        //printf("il s'agit du map[%d][%d] = %d\n",(coordonnee_x/TAILLE_JOUEUR),(coordonnee_y/TAILLE_JOUEUR),map[(coordonnee_x/TAILLE_JOUEUR)][(coordonnee_y/TAILLE_JOUEUR)]);
+        if(map[coordonnee_y][coordonnee_x] != ESPACE_VIDE){
+            return OUI;
+        }
+        else{
+            return NON;
+        }
+    }
+}
+
+/*-------------------------------------------------------------------------------------------------------------*/
+
+int intersection_verticale(int coordonnee_x, int angle){
+    int coordonnee_y = ABS(((double)coordonnee_x*tanl(conversion_radian_angle(angle))));
+    printf("l'intersection a donne en y -> %d\n",coordonnee_y);
+    return coordonnee_y;
+}
+
+/*-------------------------------------------------------------------------------------------------------------*/
+
+int intersection_horizontale(int coordonnee_y, int angle){
+    int coordonnee_x =  ABS(((double)coordonnee_y/tanl(conversion_radian_angle(angle))));
+    printf("l'intersection a donne en x -> %d\n",coordonnee_x);
+    return coordonnee_x;
+}
+
+/*-------------------------------------------------------------------------------------------------------------*/
+
+int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremite, int** map){
+    int compteur_intersection = 0;
+
+    if((position == NULL) || (extremite == NULL) || (map == NULL)){
+        printf("Erreur : position joueur ou extremite ou map invalide dans chercher_extremite_rayon() .\n");
+        return ECHEC_POSITION;
+    }
+    else{
+        // initialisation de point extremite du rayon :
+        extremite->x = position->x;
+        extremite->y = position->y;
+        // selon l'angle, donc selon le cadran trigonometrique, on applique l'algorithme qu'on a developpé :
+
+        switch (angle)
+        {
+        case ANGLE_NULL:
+            while(SDL_TRUE){
+                // si le rayon n'a pas encore bougé :
+                if((extremite->x == position->x) && (extremite->y == position->y)){
+                    extremite->x += TAILLE_JOUEUR/2;
+                }
+                else{
+                    extremite->x += TAILLE_JOUEUR;
+                }
+                // verification de s'il on hurte un mur ou pas avec les bonnes coordonnees :
+                if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee((extremite->x + TAILLE_JOUEUR), DECREMENTATION),incrementer_ou_decrementer_une_coordonnee(extremite->y, DECREMENTATION),map) == OUI){
+                    printf("le rayon hurte un mur avec 0 degre\n");
+                    return POSITION_SUCCES;
+                }
+            }
+            break;
+        case PI_DEGRE:
+            while(SDL_TRUE){
+                // si le rayon n'a pas encore bougé :
+                if((extremite->x == position->x) && (extremite->y == position->y)){
+                    extremite->x -= TAILLE_JOUEUR/2;
+                }
+                else{
+                    extremite->x -= TAILLE_JOUEUR;
+                }
+                // verification de s'il on hurte un mur ou pas avec les bonnes coordonnees :
+                if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee((extremite->x - TAILLE_JOUEUR),DECREMENTATION),incrementer_ou_decrementer_une_coordonnee(extremite->y,DECREMENTATION),map) == OUI){
+                    printf("le rayon hurte un mur avec 180 degre\n");
+                    return POSITION_SUCCES;
+                }
+            }
+            break;
+
+        case PI_DEGRE/2:
+            while(SDL_TRUE){
+                // si le rayon n'a pas encore bougé :
+                if((extremite->x == position->x) && (extremite->y == position->y)){
+                    extremite->y -= TAILLE_JOUEUR/2;
+                }
+                else{
+                    extremite->y -= TAILLE_JOUEUR;
+                }
+                // verification de s'il on hurte un mur ou pas avec les bonnes coordonnees :
+                if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x,DECREMENTATION),incrementer_ou_decrementer_une_coordonnee((extremite->y - TAILLE_JOUEUR),DECREMENTATION),map) == OUI){
+                    printf("le rayon hurte un mur avec 90 degre\n");
+                    return POSITION_SUCCES;
+                }
+            }
+            break;
+        case 3*PI_DEGRE/2:
+            while(SDL_TRUE){
+                // si le rayon n'a pas encore bougé :
+                if((extremite->x == position->x) && (extremite->y == position->y)){
+                    extremite->y += TAILLE_JOUEUR/2;
+                }
+                else{
+                    extremite->y += TAILLE_JOUEUR;
+                }
+                // verification de s'il on hurte un mur ou pas avec les bonnes coordonnees :
+                if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x,DECREMENTATION),incrementer_ou_decrementer_une_coordonnee((extremite->y + TAILLE_JOUEUR),DECREMENTATION),map) == OUI){
+                    printf("le rayon hurte un mur avec 3*pi/2 degre\n");
+                    return POSITION_SUCCES;
+                }
+            }
+            break;
+        default:
+            extremite->y += TAILLE_JOUEUR;
+
+        // si l'angle est dans le 1er cadran:
+        if((angle > ANGLE_NULL) && (angle < PI_DEGRE/2)){
+            // s'il est enplus dans sa 1ere partie :
+            if(angle < PI_DEGRE/4){
+                while (SDL_TRUE)
+                {
+                    printf("l'angle <= 45 \n");
+                    // s'il s'agit d'un intersection_verticale : 
+
+                    if(!(compteur_intersection % NB_TYPE_INTERSECTION)){
+                        extremite->x = incrementer_ou_decrementer_une_coordonnee(extremite->x,INCREMENTATION);
+                        extremite->y = intersection_verticale(extremite->x,angle);
+                        printf("intersection verticale a %d %d \n",extremite->x,extremite->y);
+                        // s'il s'agit d'un mur : alors bingo!
+                        if(est_ce_un_mur(extremite->x,incrementer_ou_decrementer_une_coordonnee(extremite->y,DECREMENTATION),map) == OUI){
+                            printf("le rayon a hurter la case %d %d\n",extremite->x,extremite->y);
+                            return POSITION_SUCCES;
+                        }
+                        else{
+                            printf("ce n'est pas un mur\n");
+                        }
+                    }
+                    else{
+                        // sinon si cest horizontale:
+                        extremite->y = incrementer_ou_decrementer_une_coordonnee(extremite->y,DECREMENTATION);
+                        extremite->x = intersection_horizontale(extremite->y,angle);
+                        printf("intersection horizontale a %d %d \n",extremite->x,extremite->y);
+                        // s'il s'agit d'un mur :
+                        if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x,DECREMENTATION),extremite->y,map) == OUI){
+                            printf("le rayon a hurter la case %d %d\n",extremite->x,extremite->y);
+                            return POSITION_SUCCES;
+                        }
+                        else{
+                            printf("ce n'est pas un mur\n");
+                        }
+                    }
+                    
+                    compteur_intersection++;
+                }
+                
+            }
+            else{
+                    printf("vous etes dans le cadran 1.2\n");
+                // si le rayon n'a pas encore bougé
+                if((extremite->x == position->x) && (extremite->y == position->y)){
+                    printf("1er occ\n");
+                    extremite->x += (float)(extremite->y - incrementer_ou_decrementer_une_coordonnee(extremite->y,DECREMENTATION))/(float)tanl(conversion_radian_angle(angle));
+                    extremite->y = incrementer_ou_decrementer_une_coordonnee(extremite->y,DECREMENTATION);
+                    if(est_ce_un_mur((incrementer_ou_decrementer_une_coordonnee(extremite->x,DECREMENTATION)),(extremite->y),map) == OUI){
+                        printf("le rayon a touche un mur dans 1.2 cadran 1er occ\n");
+                        return POSITION_SUCCES;
+                    }
+                }
+                else{
+                    compteur_intersection = 0;
+                    while (SDL_TRUE){
+                        if(!(compteur_intersection%NB_TYPE_INTERSECTION)){
+                            printf("verticale\n ext_y = %d  vs",extremite->y);
+                            extremite->y -= (float)tan(conversion_radian_angle(angle))*(float)(incrementer_ou_decrementer_une_coordonnee(extremite->x,INCREMENTATION) - extremite->x);
+                            extremite->x = incrementer_ou_decrementer_une_coordonnee(extremite->x,INCREMENTATION);
+                            printf(" %d after\n",extremite->y);
+                            if(extremite->y < 0)
+                                extremite->y = 0;
+                            if(est_ce_un_mur(extremite->x,ABS(incrementer_ou_decrementer_une_coordonnee(extremite->y,DECREMENTATION)),map) == OUI){
+                                printf("le rayon a touche un mur dans 1.2 cadran mur verticale\n");
+                                return POSITION_SUCCES;
+                            }
+
+                        }
+                        else{
+                            printf("horizontale\n ext_y = %d  vs",extremite->y);
+                            extremite->x += (float)(extremite->y - incrementer_ou_decrementer_une_coordonnee(extremite->y,DECREMENTATION))/(float)tan(conversion_radian_angle(angle));
+                            extremite->y = incrementer_ou_decrementer_une_coordonnee(extremite->y,DECREMENTATION);
+                            printf(" %d after\n",extremite->y);
+                            
+                            if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x,DECREMENTATION),ABS(extremite->y),map) == OUI){
+                                printf("le rayon a touche un mur dans 1.2 cadran mur horizontale\n");
+                                return POSITION_SUCCES;
+                            }
+                            /*if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x,DECREMENTATION),extremite->y+TAILLE_JOUEUR,map) == OUI){
+                                printf("le rayon a touche un mur dans 1.2 cadran\n");
+                                return POSITION_SUCCES;
+                            }*/
+                        }
+                        
+                        compteur_intersection++;
+                    }
+                    
+                }
+
+            }
+        }
+            break;
+        }
+    }
 }
 
 /*-------------------------------------------------------------------------------------------------------------*/

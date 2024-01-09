@@ -140,7 +140,7 @@ int afficher_une_map(SDL_Renderer* rendu, int** map, int nombre_de_ligne, int no
         rectangle.x = (compteur_colonne+debut_x) * TAILLE_MUR;
 
         // s'il s'agit d'un mur :
-        if(map[compteur_ligne][compteur_colonne] == OBSTACLE){
+        if(map[compteur_ligne][compteur_colonne] != ESPACE_VIDE){
           if(dessiner_un_mur_2D(rendu, &rectangle) != MUR_DESSINE_AVEC_SUCCES)
             return ERREUR_AFFICHAGE_MAP;
         }
