@@ -64,7 +64,7 @@ int main(int argc, char* argv[]){
     else{
       afficher_joueur(rendu,&joueur);
       position_du_centre(&joueur,&position_centre_joueur);
-      chercher_extremite_rayon(&position_centre_joueur,85,&extremite_rayon,map);
+      chercher_extremite_rayon(&position_centre_joueur,40,&extremite_rayon,map);
       tracer_effacer_un_rayon(rendu,&position_centre_joueur,&extremite_rayon,DESSIN_RAYON);
       SDL_RenderPresent(rendu);
       printf("map bien affichee \n");
@@ -85,7 +85,7 @@ int main(int argc, char* argv[]){
 
 
                   effacer_ancienne_position_joueur(rendu,&ancienne_position);
-                  //tracer_effacer_un_rayon(rendu,&position_centre_joueur,&extremite_rayon,EFFACEMENT_RAYON);
+                  tracer_effacer_un_rayon(rendu,&position_centre_joueur,&extremite_rayon,EFFACEMENT_RAYON);
                   //dessiner_ou_supprimer_vision_joueur(rendu,&ancienne_position,ancienne_debut_vision,EFFACEMENT_RAYON);
 
 
@@ -94,7 +94,7 @@ int main(int argc, char* argv[]){
                   position_du_centre(&joueur,&position_centre_joueur);
                   
                   
-                  chercher_extremite_rayon(&position_centre_joueur,85,&extremite_rayon,map);
+                  chercher_extremite_rayon(&position_centre_joueur,40,&extremite_rayon,map);
                   tracer_effacer_un_rayon(rendu,&position_centre_joueur,&extremite_rayon,DESSIN_RAYON);
                   printf("\n\n les extremite trouvees sont x = %d et y = %d \n\n",extremite_rayon.x,extremite_rayon.y);
                  // tracer_effacer_un_rayon(rendu,&position_centre_joueur,&extremite_rayon,DESSIN_RAYON);

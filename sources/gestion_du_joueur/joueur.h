@@ -26,6 +26,8 @@
     #define INCREMENTATION_ANGLE 2
     #define ANGLE_NULL 0
     #define PI_DEGRE 180
+    #define PI_SUR_2 90
+    #define PI_SUR_4 45
     #define DESSIN_RAYON 1
     #define EFFACEMENT_RAYON 0
     #define ECHEC_POSITION -4
@@ -36,6 +38,8 @@
     #define INCREMENTATION 1
     #define DECREMENTATION 0
     #define NB_TYPE_INTERSECTION 2
+    #define INTERSECTION_VERTICALE 1
+    #define INTERSECTION_HORIZONTALE 0
 
     /**************************STRUCTURE DU JOUEUR*********************/
 
@@ -61,6 +65,7 @@
     int est_ce_un_mur(int coordonnee_x, int coordonnee_y, int** map);
     int intersection_verticale(int coordonnee_x, int angle);
     int intersection_horizontale(int coordonnee_y, int angle);
+    int est_une_intersection(int coordonnee_x, int coordonnee_y);
 
 #endif
 
