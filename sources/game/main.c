@@ -6,11 +6,11 @@ int main(int argc, char* argv[]){
     printf("debut du test de fenetre\n\n");
 
     int** map = NULL;
-    int i,j,nb_ligne,nb_colonne, debut_vision = 0, ancienne_debut_vision;
+    int i,j,nb_ligne,nb_colonne, debut_vision = 100, ancienne_debut_vision, compteur;
     SDL_Point joueur, ancienne_position, extremite_rayon,position_centre_joueur =  {0,0};
 
-    joueur.x =1;
-    joueur.y =1;
+    joueur.x =3;
+    joueur.y =3;
     
     ancienne_position.x = joueur.x;
     ancienne_position.y = joueur.y;
@@ -64,8 +64,8 @@ int main(int argc, char* argv[]){
     else{
       afficher_joueur(rendu,&joueur);
       position_du_centre(&joueur,&position_centre_joueur);
-      chercher_extremite_rayon(&position_centre_joueur,40,&extremite_rayon,map);
-      tracer_effacer_un_rayon(rendu,&position_centre_joueur,&extremite_rayon,DESSIN_RAYON);
+      //chercher_extremite_rayon(&position_centre_joueur,debut_vision,&extremite_rayon,map);
+      //tracer_effacer_un_rayon(rendu,&position_centre_joueur,&extremite_rayon,DESSIN_RAYON);
       SDL_RenderPresent(rendu);
       printf("map bien affichee \n");
     }
@@ -83,19 +83,28 @@ int main(int argc, char* argv[]){
                 ancienne_debut_vision = debut_vision;
                 if(deplacer_joueur(evenement,map,nb_ligne,nb_colonne,&joueur,&ancienne_position,&debut_vision) == JOUEUR_A_BOUGE){
 
-
+                  
                   effacer_ancienne_position_joueur(rendu,&ancienne_position);
-                  tracer_effacer_un_rayon(rendu,&position_centre_joueur,&extremite_rayon,EFFACEMENT_RAYON);
+                  /*
+                  for(compteur = 270; compteur < 360; compteur++){
+                    chercher_extremite_rayon(&ancienne_position,compteur,&extremite_rayon,map);
+                  tracer_effacer_un_rayon(rendu,&ancienne_position,&extremite_rayon,EFFACEMENT_RAYON);
+                  }*/
+                  //tracer_effacer_un_rayon(rendu,&position_centre_joueur,&extremite_rayon,EFFACEMENT_RAYON);
                   //dessiner_ou_supprimer_vision_joueur(rendu,&ancienne_position,ancienne_debut_vision,EFFACEMENT_RAYON);
 
 
                   afficher_joueur(rendu,&joueur);
                   //dessiner_ou_supprimer_vision_joueur(rendu,&joueur,debut_vision,DESSIN_RAYON);
                   position_du_centre(&joueur,&position_centre_joueur);
+                  position_du_centre(&ancienne_position,&ancienne_position);
                   
                   
-                  chercher_extremite_rayon(&position_centre_joueur,40,&extremite_rayon,map);
+                  for(compteur = 180; compteur < 260; compteur++){
+                    chercher_extremite_rayon(&position_centre_joueur,compteur,&extremite_rayon,map);
                   tracer_effacer_un_rayon(rendu,&position_centre_joueur,&extremite_rayon,DESSIN_RAYON);
+                  }
+                  
                   printf("\n\n les extremite trouvees sont x = %d et y = %d \n\n",extremite_rayon.x,extremite_rayon.y);
                  // tracer_effacer_un_rayon(rendu,&position_centre_joueur,&extremite_rayon,DESSIN_RAYON);
                   

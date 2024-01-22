@@ -40,6 +40,8 @@
     #define NB_TYPE_INTERSECTION 2
     #define INTERSECTION_VERTICALE 1
     #define INTERSECTION_HORIZONTALE 0
+    #define CENTRE 0
+    #define PORTEE_VISION 75 
 
     /**************************STRUCTURE DU JOUEUR*********************/
 
@@ -66,6 +68,7 @@
     int intersection_verticale(int coordonnee_x, int angle);
     int intersection_horizontale(int coordonnee_y, int angle);
     int est_une_intersection(int coordonnee_x, int coordonnee_y);
+    int calculer_distance(int x1, int y1, int x2, int y2);
 
 #endif
 

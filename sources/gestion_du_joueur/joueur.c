@@ -271,7 +271,7 @@ int est_ce_un_mur(int coordonnee_x, int coordonnee_y, int** map){
     else{
         coordonnee_x = coordonnee_x/TAILLE_JOUEUR;
         coordonnee_y = coordonnee_y/TAILLE_JOUEUR;
-        printf("coordonnee_x = %d et coordonnee_y = %d\n",coordonnee_x,coordonnee_y);
+        //printf("coordonnee_x = %d et coordonnee_y = %d\n",coordonnee_x,coordonnee_y);
         //printf("il s'agit du map[%d][%d] = %d\n",(coordonnee_x/TAILLE_JOUEUR),(coordonnee_y/TAILLE_JOUEUR),map[(coordonnee_x/TAILLE_JOUEUR)][(coordonnee_y/TAILLE_JOUEUR)]);
         if(map[coordonnee_y][coordonnee_x] != ESPACE_VIDE){
             return OUI;
@@ -314,11 +314,17 @@ int est_une_intersection(int coordonnee_x, int coordonnee_y){
     }
 
 }
+/*-------------------------------------------------------------------------------------------------------------*/
+
+int calculer_distance(int x1, int y1, int x2, int y2){
+    return sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
+}
 
 /*-------------------------------------------------------------------------------------------------------------*/
 
 int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremite, int** map){
-    int compteur_intersection = 0;
+    int compteur_intersection = 0, save_position;
+    float dx = CENTRE,dy = CENTRE,coeff_dir = CENTRE;
 
     if((position == NULL) || (extremite == NULL) || (map == NULL)){
         printf("Erreur : position joueur ou extremite ou map invalide dans chercher_extremite_rayon() .\n");
@@ -404,32 +410,291 @@ int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremit
             if(angle < PI_SUR_2){
                 // si en plus il est inferieur a 45°:
                 if(angle < PI_SUR_4){
-                    while(SDL_TRUE){
+                    coeff_dir = (float)tanl(conversion_radian_angle(angle));
+                    while(calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy)) < PORTEE_VISION){
                         // si le rayon n'a pas encore bouge alors on le lance a l'exterieur du rectangle joueur :
-                        if((extremite->x == position->x) && (extremite->y == position->y)){
-                            extremite->x += TAILLE_JOUEUR/2;
-                            extremite->y -= (TAILLE_JOUEUR/2)*(float)tanl(conversion_radian_angle(angle));
+                        if((dx == CENTRE) && (dy == CENTRE)){
+                            dx += TAILLE_JOUEUR/2;
+                            dy -= dx*(float)tanl(conversion_radian_angle(angle));
                         }
                         else{
-                            extremite->x++;
-                            extremite->y -= round((float)tanl(conversion_radian_angle(angle)));
+                            dx++;
+                            dy-= coeff_dir;
                         }
 
                         // on verifie s'il le rayon intersecte un mur ou pas:
-                        if(est_une_intersection(extremite->x,extremite->y) == INTERSECTION_VERTICALE){
-                            if(est_ce_un_mur(extremite->x,incrementer_ou_decrementer_une_coordonnee(extremite->y,DECREMENTATION),map) == OUI){
+                        if(est_une_intersection(extremite->x + dx, extremite->y + dy) == INTERSECTION_VERTICALE){
+                            if(est_ce_un_mur(extremite->x + dx,incrementer_ou_decrementer_une_coordonnee(extremite->y + dy,DECREMENTATION),map) == OUI){
+                                extremite->x += dx;
+                                extremite->y += dy;
                                 return POSITION_SUCCES;
                             }
                         }
-                        else if(est_une_intersection(extremite->x,extremite->y) == INTERSECTION_HORIZONTALE){
-                            if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x,DECREMENTATION),incrementer_ou_decrementer_une_coordonnee(extremite->y,DECREMENTATION),map) == OUI){
+                        else if(est_une_intersection(extremite->x + dx,extremite->y + dy) == INTERSECTION_HORIZONTALE){
+                            if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x + dx,DECREMENTATION),incrementer_ou_decrementer_une_coordonnee(extremite->y + dy-TAILLE_JOUEUR,DECREMENTATION),map) == OUI){
+                                extremite->x += dx;
+                                extremite->y += dy;
                                 return POSITION_SUCCES;
                             }
                         }
 
-                        //return POSITION_SUCCES;
+                       
+                    }
+                    extremite->x += dx;
+                    extremite->y += dy;
+                }
+                else{
+                    // si l'angle est compris entre 45° et 90°:
+                    coeff_dir = (float)tanl(conversion_radian_angle(PI_SUR_2 - angle));
+                    while((calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy)) < PORTEE_VISION) && (abs(dy) < extremite->y-TAILLE_MUR)){
+                        // si le rayon n'a pas encore bouge alors on le lance a l'exterieur du rectangle joueur :
+                        if((dx == CENTRE) && (dy == CENTRE)){
+                            dy -= TAILLE_JOUEUR/2;
+                            dx += abs(dy)*(float)tanl(conversion_radian_angle(PI_SUR_2 - angle));
+                        }
+                        else{
+                            dy--;
+                            dx += coeff_dir;
+                        }
+                        // on verifie s'il le rayon intersecte un mur ou pas:
+                        if(est_une_intersection(extremite->x + dx, extremite->y + dy) == INTERSECTION_VERTICALE){
+                            if(est_ce_un_mur(extremite->x + dx,incrementer_ou_decrementer_une_coordonnee(extremite->y + dy,DECREMENTATION),map) == OUI){
+                                extremite->x += dx;
+                                extremite->y += dy;
+                                return POSITION_SUCCES;
+                            }
+                        }
+                        else if(est_une_intersection(extremite->x + dx,extremite->y + dy) == INTERSECTION_HORIZONTALE){
+                            if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x + dx,DECREMENTATION),incrementer_ou_decrementer_une_coordonnee(extremite->y + dy -TAILLE_JOUEUR,DECREMENTATION),map) == OUI){
+                                extremite->x += dx;
+                                extremite->y += dy;
+                                return POSITION_SUCCES;
+                            }
+                        }
+
+                    }
+                    extremite->x += dx;
+                    extremite->y += dy;
+                }
+            }
+            else{
+                // si l'angle fait partie du 2em cadran :
+                // et si enplus il est compris entre 90° et 135°
+                
+                if(angle < PI_SUR_2 + PI_SUR_4){
+                    coeff_dir = (float)tanl(conversion_radian_angle(angle-PI_SUR_2));
+                    while((calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy)) < PORTEE_VISION) && (abs(dy) < extremite->y-TAILLE_MUR)&& (abs(dx) < extremite->x-TAILLE_MUR)){
+                        // si le rayon n'a pas encore bouge alors on le lance a l'exterieur du rectangle joueur :
+                        if((dx == CENTRE) && (dy == CENTRE)){
+                            dy -= TAILLE_JOUEUR/2;
+                            dx -= dy*(float)tanl(conversion_radian_angle(angle-PI_SUR_2));
+                        }
+                        else{
+                            dy--;
+                            dx -= coeff_dir;
+                        }
+
+                        // on verifie s'il le rayon intersecte un mur ou pas:
+                        if(est_une_intersection(extremite->x + dx, extremite->y + dy) == INTERSECTION_VERTICALE){
+                            if(est_ce_un_mur(extremite->x + dx -TAILLE_JOUEUR,incrementer_ou_decrementer_une_coordonnee( extremite->y + dy,DECREMENTATION),map) == OUI){
+                                extremite->x += dx;
+                                extremite->y += dy;
+                                return POSITION_SUCCES;
+                            }
+                        }
+                        else if(est_une_intersection(extremite->x + dx, extremite->y + dy) == INTERSECTION_HORIZONTALE){
+                            if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x + dx,DECREMENTATION),incrementer_ou_decrementer_une_coordonnee( extremite->y + dy -TAILLE_JOUEUR,DECREMENTATION),map) == OUI){
+                                extremite->x += dx;
+                                extremite->y += dy;
+                                return POSITION_SUCCES;
+                            }
+                        }
+                    }
+                    extremite->x += dx;
+                    extremite->y += dy;
+                }
+                else{
+                    // si l'angle est dans la 2em moitier du 2iem cadran :
+                    coeff_dir = (float)tanl(conversion_radian_angle(PI_DEGRE - angle));
+                    while((calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy)) < PORTEE_VISION) && (abs(dy) < extremite->y-TAILLE_MUR)&& (abs(dx) < extremite->x-TAILLE_MUR)){
+                        // si le rayon n'a pas encore bouge alors on le lance a l'exterieur du rectangle joueur :
+                        if((dx == CENTRE) && (dy == CENTRE)){
+                            dx -= TAILLE_JOUEUR/2;
+                            dy -= dx*(float)tanl(conversion_radian_angle(PI_DEGRE - angle));
+                        }
+                        else{
+                            dx--;
+                            dy -= coeff_dir;
+                        }
+
+                        // on verifie s'il le rayon intersecte un mur ou pas:
+                        if(est_une_intersection(extremite->x + dx, extremite->y + dy) == INTERSECTION_VERTICALE){
+                            if(est_ce_un_mur(extremite->x + dx -TAILLE_JOUEUR,incrementer_ou_decrementer_une_coordonnee( extremite->y + dy,DECREMENTATION),map) == OUI){
+                                extremite->x += dx;
+                                extremite->y += dy;
+                                return POSITION_SUCCES;
+                            }
+                        }
+                        else if(est_une_intersection(extremite->x + dx, extremite->y + dy) == INTERSECTION_HORIZONTALE){
+                            if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x + dx,DECREMENTATION),incrementer_ou_decrementer_une_coordonnee( extremite->y + dy -TAILLE_JOUEUR,DECREMENTATION),map) == OUI){
+                                extremite->x += dx;
+                                extremite->y += dy;
+                                return POSITION_SUCCES;
+                            }
+                        }
+                    }
+                    extremite->x += dx;
+                    extremite->y += dy;
+                }
+            }
+            // 3em et 4iem quadran
+            if(angle > PI_DEGRE){
+                // si l'angle est dans le 4em quadrant :
+                if(angle > (PI_DEGRE + PI_SUR_2)){
+                    // si en plus c'est sur la derniere partie du quadrant
+                    if(angle > (PI_DEGRE + PI_SUR_2 + PI_SUR_4)){
+                        coeff_dir = (float)tanl(conversion_radian_angle(2*PI_DEGRE - angle));
+                        while(calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy)) < PORTEE_VISION){
+                            // si le rayon n'a pas encore bouge alors on le lance a l'exterieur du rectangle joueur :
+                            if((dx == CENTRE) && (dy == CENTRE)){
+                                dx += TAILLE_JOUEUR/2;
+                                dy += (float)(TAILLE_JOUEUR/2)*(float)tanl(conversion_radian_angle(2*PI_DEGRE - angle));
+                                save_position = dx;
+                            }
+                            else{
+                                dx++;
+                                dy += coeff_dir;
+                                save_position = dx;
+                            }
+
+                            // on verifie s'il le rayon intersecte un mur ou pas:
+                            if(est_une_intersection(extremite->x + dx, extremite->y + dy) == INTERSECTION_VERTICALE){
+                                if(est_ce_un_mur(extremite->x + dx,incrementer_ou_decrementer_une_coordonnee(extremite->y + dy,DECREMENTATION),map) == OUI){
+                                    extremite->x += dx;
+                                    extremite->y += dy;
+                                    return POSITION_SUCCES;
+                                }
+                            }
+                            else if(est_une_intersection(extremite->x + dx,extremite->y + dy) == INTERSECTION_HORIZONTALE){
+                                if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x + dx,DECREMENTATION),extremite->y + dy,map) == OUI){
+                                    extremite->x += dx;
+                                    extremite->y += dy;
+                                    return POSITION_SUCCES;
+                                }
+                            }
+                        }
+                        extremite->x += dx;
+                        extremite->y += dy;
+
+                    }
+                    else{
+                        while(calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy)) < PORTEE_VISION){
+                            // si le rayon n'a pas encore bouge alors on le lance a l'exterieur du rectangle joueur :
+                            coeff_dir = (float)tanl(conversion_radian_angle(angle - (PI_DEGRE + PI_SUR_2)));
+                            if((dx == CENTRE) && (dy == CENTRE)){
+                                dy = TAILLE_JOUEUR/2;
+                                dx = (float)(TAILLE_JOUEUR/2)*(float)tanl(conversion_radian_angle(angle - (PI_DEGRE + PI_SUR_2)));
+                                save_position = dy;
+                            }
+                            else{
+                                dy++;
+                                dx += coeff_dir;
+                                save_position = dy;
+                            }
+
+                            // on verifie s'il le rayon intersecte un mur ou pas:
+                            if(est_une_intersection(extremite->x+dx,extremite->y+dy) == INTERSECTION_VERTICALE){
+                                if(est_ce_un_mur(extremite->x+dx,incrementer_ou_decrementer_une_coordonnee(extremite->y+dy,DECREMENTATION),map) == OUI){
+                                    extremite->x += dx;
+                                    extremite->y += dy;
+                                    return POSITION_SUCCES;
+                                }
+                            }
+                            else if(est_une_intersection(extremite->x+dx,extremite->y+dy) == INTERSECTION_HORIZONTALE){
+                                if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x+dx,DECREMENTATION),extremite->y+dy,map) == OUI){
+                                    extremite->x += dx;
+                                    extremite->y += dy;
+                                    return POSITION_SUCCES;
+                                }
+                            }
+                        }
+                        extremite->x += dx;
+                        extremite->y += dy;
+                    }
+
+                }
+                else{
+                    
+                    if(angle < PI_DEGRE + PI_SUR_4){
+                        coeff_dir = (float)tanl(conversion_radian_angle(angle - PI_DEGRE));
+                        while((calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy)) < PORTEE_VISION) && (abs(dx) < extremite->x - TAILLE_MUR) ){
+                            // si le rayon n'a pas encore bouge alors on le lance a l'exterieur du rectangle joueur :
+                            if((dx == CENTRE) && (dy == CENTRE)){
+                                dx -= TAILLE_JOUEUR/2;
+                                dy += abs(dx) * (float)tanl(conversion_radian_angle(angle - PI_DEGRE));
+                            }
+                            else{
+                                dx--;
+                                dy += coeff_dir;
+                            }
+                        printf("dx = %.2f     dy = %.2f \n",dx,dy);
+                        printf("extremite->x =%d      extremite->y = %d\n",extremite->x, extremite->y);
+
+                            // on verifie s'il le rayon intersecte un mur ou pas:
+                            if(est_une_intersection(extremite->x + dx, extremite->y + dy) == INTERSECTION_VERTICALE){
+                                if(est_ce_un_mur(extremite->x + dx - TAILLE_JOUEUR,incrementer_ou_decrementer_une_coordonnee(extremite->y + dy,DECREMENTATION),map) == OUI){
+                                    extremite->x += dx;
+                                    extremite->y += dy;
+                                    return POSITION_SUCCES;
+                                }
+                            }
+                            else if(est_une_intersection(extremite->x + dx,extremite->y + dy) == INTERSECTION_HORIZONTALE){
+                                if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x + dx,DECREMENTATION),incrementer_ou_decrementer_une_coordonnee(extremite->y + dy,DECREMENTATION),map) == OUI){
+                                    extremite->x += dx;
+                                    extremite->y += dy;
+                                    return POSITION_SUCCES;
+                                }
+                            }
+                        }
+                        extremite->x += dx;
+                        extremite->y += dy;
+                    }
+                    else{
+                        coeff_dir = (float)tanl(conversion_radian_angle(PI_DEGRE + PI_SUR_2 - angle));
+                        while((calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy)) <= PORTEE_VISION) && ((extremite->x + dx) >= TAILLE_MUR*2) ){
+                            // si le rayon n'a pas encore bouge alors on le lance a l'exterieur du rectangle joueur :
+                            if((dx == CENTRE) && (dy == CENTRE)){
+                                dy += TAILLE_JOUEUR/2;
+                                dx -= dy*(float)tanl(conversion_radian_angle(PI_DEGRE + PI_SUR_2 - angle));
+                            }
+                            else{
+                                dy++;
+                                dx -= coeff_dir;
+                            }
+                            printf("dx = %.2f     dy = %.2f \n",dx,dy);
+                        printf("extremite->x =%d      extremite->y = %d\n",extremite->x, extremite->y);
+                            // on verifie s'il le rayon intersecte un mur ou pas:
+                            if(est_une_intersection(extremite->x + dx, extremite->y + dy) == INTERSECTION_VERTICALE){
+                                if(est_ce_un_mur(extremite->x + dx ,incrementer_ou_decrementer_une_coordonnee(extremite->y + dy,DECREMENTATION),map) == OUI){
+                                    extremite->x += dx;
+                                    extremite->y += dy;
+                                    return POSITION_SUCCES;
+                                }
+                            }
+                            else if(est_une_intersection(extremite->x + dx,extremite->y + dy) == INTERSECTION_HORIZONTALE){
+                                if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x + dx,DECREMENTATION), extremite->y + dy, map) == OUI){
+                                    extremite->x += dx;
+                                    extremite->y += dy;
+                                    return POSITION_SUCCES;
+                                }
+                            }
+                        }
+                        extremite->x += dx;
+                        extremite->y += dy;
+                        
                     }
                 }
+
             }
             break;
         }
