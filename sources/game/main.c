@@ -100,7 +100,7 @@ int main(int argc, char* argv[]){
                   position_du_centre(&ancienne_position,&ancienne_position);
                   
                   
-                  for(compteur = 180; compteur < 260; compteur++){
+                  for(compteur = 0; compteur < 90; compteur++){
                     chercher_extremite_rayon(&position_centre_joueur,compteur,&extremite_rayon,map);
                   tracer_effacer_un_rayon(rendu,&position_centre_joueur,&extremite_rayon,DESSIN_RAYON);
                   }
