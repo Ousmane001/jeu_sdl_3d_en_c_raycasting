@@ -23,12 +23,12 @@ compilation : $(EXECUTABLE)
 # compilation séparé de chaque fichier_source en fichier objet :
 
 %.o : %.c 
-	$(COMPILATEUR) -c $< -o $@
+	$(COMPILATEUR) -c $< -o $@ $(sdl2-config --cflags --libs)
 
 # edition des liens de tous les fichier objets obtenu pour creer l'executable :
 
 $(EXECUTABLE) : $(OBJETS)
-	$(COMPILATEUR) -o $(ADRESSE_EXE)$@ $(OBJETS) $(INCLUSION)
+	$(COMPILATEUR) -o $(ADRESSE_EXE)$@ $(OBJETS) 
 
 execution : 
 	 $(ADRESSE_EXE)$(EXECUTABLE)
