@@ -9,7 +9,9 @@ ADRESSE_EXE = includes_de_SDL/bin/
 
 # stockage dans une variable des inclusion sdl necessaire pour la compilation :
 
-INCLUSION = -I includes_de_SDL/include -L includes_de_SDL/lib -lmingw32 -lSDL2main -lSDL2
+#INCLUSION = -I includes_de_SDL/include -L includes_de_SDL/lib -lmingw32 -lSDL2main -lSDL2
+W = sld2-config --cflags --libs
+INCLUSION = $(shell sdl2-config --cflags --libs)  -lm
 
 # creation d'une liste contenant l'ensemble des fichier sources (*.c) de notre programme :
 SOURCES = $(wildcard sources/*.c sources/game/*.c sources/gestion_du_joueur/*.c sources/gestion_du_map/*.c)
@@ -23,14 +25,13 @@ compilation : $(EXECUTABLE)
 # compilation séparé de chaque fichier_source en fichier objet :
 
 %.o : %.c 
-	$(COMPILATEUR) -c $< -o $@
+	$(COMPILATEUR) -c $< -o $@ $(INCLUSION)
 
 # edition des liens de tous les fichier objets obtenu pour creer l'executable :
 
 $(EXECUTABLE) : $(OBJETS)
-	$(COMPILATEUR) -o $(ADRESSE_EXE)$@ $(OBJETS) $(INCLUSION)
+# $(COMPILATEUR) -o $(ADRESSE_EXE)$@ $(OBJETS) $(INCLUSION)
+	$(COMPILATEUR) -o $@ $(OBJETS) $(INCLUSION)
 
 execution : 
-	 $(ADRESSE_EXE)$(EXECUTABLE)
-
-#https://yunes.informatique.univ-paris-diderot.fr/wp-content/uploads/cours/INFOGRAPHIE/08-Raycasting.pdf
+	./$(EXECUTABLE)
