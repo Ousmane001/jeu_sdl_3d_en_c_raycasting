@@ -7,6 +7,7 @@
     #include <stdlib.h>
     #include <math.h>
     #include "include/SDL.h"
+    // jsute 
 
     #define COULEUR_ROUGE(x) SDL_SetRenderDrawColor((x),255,0,0,SDL_ALPHA_OPAQUE)
     #define COULEUR_VERTE(x) SDL_SetRenderDrawColor((x),0,255,0,SDL_ALPHA_OPAQUE)
