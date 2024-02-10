@@ -100,7 +100,7 @@ int main(int argc, char* argv[]){
                   position_du_centre(&ancienne_position,&ancienne_position);
                   
                   int fin = debut_vision;
-                  for(debut_vision = 0; debut_vision < 90+fin; debut_vision++){
+                  for(debut_vision = 0; debut_vision < 125; debut_vision++){
                     chercher_extremite_rayon(&position_centre_joueur,debut_vision,&extremite_rayon,map);
                   tracer_effacer_un_rayon(rendu,&position_centre_joueur,&extremite_rayon,DESSIN_RAYON);
                   }
