@@ -5,7 +5,7 @@
 
     #include "../../includes_de_SDL/entetes_sdl.h"
 
-    
+    #define DECALAGE 795
     #define FICHIER_MAP "sources/gestion_du_map/fichier_map.csv"
     #define TAILLE_MAX_TAMPON 1024
     #define ERREUR_OUVERTURE -1
@@ -25,6 +25,12 @@
     #define ERREUR_AFFICHAGE_MAP -9
     #define MAP_DETRUITE_AVEC_SUCCES 0
     #define ESPACE_VIDE 0
+    #define HAUTEUR_ESPACE_AFFICHAGE 900 
+    #define LARGEUR_MUR 25
+    #define DISTANCE_MINIMAL 7.5
+    #define DEBUT_AFFICHAGE_3DX 25 
+    #define DEBUT_AFFICHAGE_3DY 30
+
 
 
 
@@ -34,6 +40,6 @@
     int dessiner_un_mur_2D(SDL_Renderer* rendu, SDL_Rect* mur);
     int afficher_une_map(SDL_Renderer* rendu, int** map, int nombre_de_ligne, int nombre_de_colonne, int debut_x, int debut_y);
     int detruire_une_map(int*** map, int nombre_de_ligne);
-
+    int afficher_une_map_3D(SDL_Renderer* rendu,int nb_ligne, unsigned int* distances, int nb_rayon, int portee_vision);
     
 #endif

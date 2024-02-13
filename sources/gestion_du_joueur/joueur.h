@@ -22,7 +22,7 @@
     #define ECHEC_DESSIN -3
     #define DESSIN_REUSSI 0
     #define ANGLE_SPECTRE_VISION 50
-    #define INCREMENTATION_VISION 2
+    #define INCREMENTATION_VISION 10
     #define INCREMENTATION_ANGLE 2
     #define ANGLE_NULL 0
     #define PI_DEGRE 180
@@ -62,7 +62,7 @@
     double conversion_radian_angle(int angle_degre);
 
     int position_du_centre(SDL_Point* position, SDL_Point*  position_du_centre);
-    int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremite, int** map);
+    int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremite, int** map, int* distances);
     int incrementer_ou_decrementer_une_coordonnee(int coordonnee, int mode);
     int est_ce_un_mur(int coordonnee_x, int coordonnee_y, int** map);
     int intersection_verticale(int coordonnee_x, int angle);
