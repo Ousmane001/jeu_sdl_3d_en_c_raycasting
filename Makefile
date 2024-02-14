@@ -9,8 +9,8 @@ ADRESSE_EXE = includes_de_SDL/bin/
 
 # stockage dans une variable des inclusion sdl necessaire pour la compilation :
 
-#INCLUSION = -I includes_de_SDL/include -L includes_de_SDL/lib -lmingw32 -lSDL2main -lSDL2
-INCLUSION = $(shell sdl2-config --cflags --libs)  -lm
+INCLUSION = -I includes_de_SDL/include -L includes_de_SDL/lib -lmingw32 -lSDL2main -lSDL2
+#INCLUSION = $(shell sdl2-config --cflags --libs)  -lm
 
 # creation d'une liste contenant l'ensemble des fichier sources (*.c) de notre programme :
 SOURCES = $(wildcard sources/*.c sources/game/*.c sources/gestion_du_joueur/*.c sources/gestion_du_map/*.c)
