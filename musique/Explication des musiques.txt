@@ -1,0 +1,45 @@
+Commande de compilation:
+gcc test.c LM.c boucle_de_musique.c -o prog1 $(sdl2-config --cflags --libs) -lSDL2_mixer
+
+
+void InitialisationM();
+
+
+Mix_Music* loadM(char* p);
+	Permet de charger une musique avec une adresse d'un élément d'extention .mp3
+
+void jouerM(Mix_Music* musique,int tour);
+	Permet de jouer une musique pendant un nombre de tour
+	(-1 tour => répétition infini)
+	
+void jouerC(int numCanal,Mix_Chunk* chunk,int tour);
+	Permet de jouer un chunk sur un canal choisi pendant un nombre de tour voulu
+	(0 tour => 1; 1 tour => 2; ect...)
+	numCanal représente le numéro du canal voulu
+
+
+void initialisationCanal(int canal,int volume);
+	Permet d'initialiser un canal de numéro numCanal de volume volume
+
+Mix_Chunk * loadChunk(char * p);
+	Permet de charger un chunk avec une adresse d'un élément d'extention .wav
+
+
+void operationMusique(int op,int volume);
+	Permet selon la valeur de op de réaliser une opération sur la musique:
+	-0 met en pause ou enlève la pause
+	-1 reset la musique
+	-2 arrête la musique 
+	La variable volume est le volume associé à la musique
+	-3 diminue le volume
+	-4 augmente le volume
+	
+void operationChunk(int op,int volume2,int numCanal);
+        Permet selon la valeur de op de réaliser une opération sur un canal:
+	-0 met en pause ou enlève la pause
+	-1 arrête le canal
+	La variable volume2 est le volume2 associé à la musique
+	-2 diminue le volume
+	-3 augmente le volume
+
+
