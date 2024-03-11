@@ -3,16 +3,16 @@
 COMPILATEUR = gcc
 
 #variable contenant le nom de notre executable :
-EXECUTABLE = prog
+EXECUTABLE = prog1
 #addresse relative ou on stoque l'executable du projet:
 ADRESSE_EXE = includes_de_SDL/bin/
 
 # stockage dans une variable des inclusion sdl necessaire pour la compilation :
 
-INCLUSION = -I includes_de_SDL/include -L includes_de_SDL/lib -lmingw32 -lSDL2main -lSDL2
+INCLUSION = -I includes_de_SDL/include -L includes_de_SDL/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer
 
 # creation d'une liste contenant l'ensemble des fichier sources (*.c) de notre programme :
-SOURCES = $(wildcard sources/*.c sources/game/*.c sources/gestion_du_joueur/*.c sources/gestion_du_map/*.c)
+SOURCES = $(wildcard sources/*.c sources/musique/*.c )
 
 # creation a partir de l'ensemble des fichiers sources, une liste de fichier objet (.o)
 OBJETS = $(SOURCES:*.c=*.o)
