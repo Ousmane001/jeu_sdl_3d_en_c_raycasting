@@ -9,7 +9,7 @@ ADRESSE_EXE = includes_de_SDL/bin/
 
 # stockage dans une variable des inclusion sdl necessaire pour la compilation :
 
-#INCLUSION = -I includes_de_SDL/include -L includes_de_SDL/lib -lmingw32 -lSDL2main -lSDL2
+#INCLUSION = -I includes_de_SDL/include -L includes_de_SDL/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer
 W = sld2-config --cflags --libs
 INCLUSION = $(shell sdl2-config --cflags --libs)  -lm
 
