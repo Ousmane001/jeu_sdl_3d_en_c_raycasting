@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
                 if (mouseX >= jouerButton.x && mouseX <= jouerButton.x + jouerButton.w &&
                     mouseY >= jouerButton.y && mouseY <= jouerButton.y + jouerButton.h) {
                     SDL_Log("Bouton Jouer cliqué !");
-                    //launch_game();
+                    //lance le jeu
                 } else if (mouseX >= optionsButton.x && mouseX <= optionsButton.x + optionsButton.w &&
                            mouseY >= optionsButton.y && mouseY <= optionsButton.y + optionsButton.h) {
                     SDL_Log("Bouton Options cliqué !");
