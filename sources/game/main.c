@@ -2,14 +2,15 @@
 
 //gcc ../sources/game/main.c ../sources/gestion_du_joueur/joueur.c ../sources/game/game.c ../sources/gestion_du_map/map.c -I include -L lib -lmingw32 -lSDL2main -lSDL2 -o  bin/prog
 
+int chercher_extremite_rayon_v2(SDL_Point *position, float angle, SDL_Point *extremite, int **map, int *distances, int portee_vision);
 int main(int argc, char* argv[]){
     printf("debut du test de fenetre \n\n");
 
     int** map = NULL;
-    unsigned int* distances = NULL;
-    int i,j,nb_ligne,nb_colonne, debut_vision = 0, ancienne_debut_vision, compteur;
+    int* distances = NULL;
+    int i,j,nb_ligne,nb_colonne, debut_vision = 0, ancienne_debut_vision, compteur,efface = 0;
     SDL_Point joueur, ancienne_position, extremite_rayon,position_centre_joueur =  {0,0};
-
+     FILE* verif_distances = fopen("distances","w");
     joueur.x =3;
     joueur.y =3;
     
@@ -18,11 +19,11 @@ int main(int argc, char* argv[]){
 
     if(scanner_une_map(FICHIER_MAP,&nb_ligne,&nb_colonne) != MAP_CORRECT){
     printf("map incorrect\n");
-  }
-  else{
+    }
+    else{
     printf("map correct\n");
     printf("dimension -> %d x %d\n",nb_ligne,nb_colonne);
-    distances = (unsigned int*)malloc(sizeof(unsigned int)* 70);
+    distances = (int*)malloc(sizeof(int)* ANGLE_SPECTRE_VISION);
     if(allouer_une_map_correcte(&map,nb_ligne,nb_colonne) != MATRICE_CREEE){
       printf("erreur d'allocation\n");
     
@@ -39,7 +40,7 @@ int main(int argc, char* argv[]){
       }
         
     }
-  }
+    }
     
 
     // initialisation de la sdl :
@@ -87,40 +88,40 @@ int main(int argc, char* argv[]){
 
                   
                   effacer_ancienne_position_joueur(rendu,&ancienne_position);
-                  /*for(compteur = debut_vision; compteur < 70+debut_vision; compteur++){
-                    tracer_effacer_un_rayon(rendu,&position_centre_joueur,&extremite_rayon,EFFACEMENT_RAYON);
-                  }*/
-                  /*
-                  for(compteur = 270; compteur < 360; compteur++){
-                    chercher_extremite_rayon(&ancienne_position,compteur,&extremite_rayon,map);
-                  tracer_effacer_un_rayon(rendu,&ancienne_position,&extremite_rayon,EFFACEMENT_RAYON);
-                  }*/
-                  //tracer_effacer_un_rayon(rendu,&position_centre_joueur,&extremite_rayon,EFFACEMENT_RAYON);
-                  //dessiner_ou_supprimer_vision_joueur(rendu,&ancienne_position,ancienne_debut_vision,EFFACEMENT_RAYON);
-
-
+                  
                   afficher_joueur(rendu,&joueur);
-                  //dessiner_ou_supprimer_vision_joueur(rendu,&joueur,debut_vision,DESSIN_RAYON);
                   position_du_centre(&joueur,&position_centre_joueur);
-                  position_du_centre(&ancienne_position,&ancienne_position);
 
-
-                  printf("debut vision = %d  ",debut_vision%360);
-                  for(compteur = debut_vision; compteur < 70+ debut_vision %360; compteur++){
-                    chercher_extremite_rayon(&position_centre_joueur,compteur % 360,&extremite_rayon,map,&(distances[compteur]));
+                  debut_vision = debut_vision%(2*PI_DEGRE);
+                  //printf("debut vision = %d  ",debut_vision%360);
+                  
+                    fprintf(verif_distances,"%d \t jusqua %d",debut_vision,(debut_vision+70)%(2*PI_DEGRE));
+                  for(compteur = 0; compteur < 70; compteur++){
+                    
+                    chercher_extremite_rayon(&position_centre_joueur,(compteur+debut_vision) % 360,&extremite_rayon,map,&(distances[compteur]));
                     tracer_effacer_un_rayon(rendu,&position_centre_joueur,&extremite_rayon,DESSIN_RAYON);
-                  //printf("distance %d  = %d \n",compteur+1,distances[compteur]);
+
+                    //printf("distance %d  = %d \n",compteur+1,distances[compteur]);
                   }
-                  printf("fin vision = %d  \n",compteur%360);
+                  fprintf(verif_distances,"\n");
                   
                   afficher_une_map_3D(rendu,nb_ligne,distances,70,PORTEE_VISION);
-                  //printf("\n\n les extremite trouvees sont x = %d et y = %d \n\n",extremite_rayon.x,extremite_rayon.y);
-                 // tracer_effacer_un_rayon(rendu,&position_centre_joueur,&extremite_rayon,DESSIN_RAYON);
-                  
+
+                  /*for(i = 0; i < nb_ligne; i++){
+                    for(j = 0; j < nb_colonne; j++)
+                      printf("%d ",map[i][j]);
+
+                    printf("\n");
+                  }*/
+                  //SDL_RenderPresent(rendu);
 
 
                 } 
-
+                else{
+                  // attente
+                }
+              break;
+              
               default:
                 break;
             }
@@ -130,7 +131,7 @@ int main(int argc, char* argv[]){
         }
     }
 
-
+fclose(verif_distances);
 
 
   // fermeture convenable du jeu avec liberation adequate : 
@@ -147,3 +148,4 @@ int main(int argc, char* argv[]){
 
     return 0;
 }
+

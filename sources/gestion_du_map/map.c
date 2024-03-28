@@ -5,7 +5,7 @@
 int scanner_une_map(char* fichier, int* nombre_de_ligne, int* nombre_de_colonne){
   FILE* fichier_map = fopen(fichier, "r");
   char chaine_lecture[TAILLE_MAX_TAMPON] = "";
-  unsigned int nb_lignes = 0,nb_colonnes = 0,compteur_ligne,compteur_colonne,compteur_caractere;
+  int nb_lignes = 0,nb_colonnes = 0,compteur_ligne,compteur_colonne,compteur_caractere;
   
   if(fichier_map == NULL){
     printf("Erreur d'ouverture du fichier");
@@ -75,7 +75,7 @@ int charger_une_map(char* fichier, int** map){
   FILE* fichier_map = fopen(fichier, "r");
   char chaine_lecture[TAILLE_MAX_TAMPON] = "";
   char caractere_actuel = 0;
-  unsigned int nb_lignes = 0,nb_colonnes = 0,compteur_ligne,compteur_colonne,compteur_caractere;
+  int nb_lignes = 0,nb_colonnes = 0,compteur_ligne,compteur_colonne,compteur_caractere;
 
   if(fichier_map == NULL){
     printf("Erreur d'ouverture du fichier");
@@ -188,53 +188,48 @@ int detruire_une_map(int*** map, int nombre_de_ligne){
 
 /*********************************************************************************************************************************************/
 
-int afficher_une_map_3D(SDL_Renderer* rendu,int nb_ligne, unsigned int* distances, int nb_rayon, int portee_vision){
+int afficher_une_map_3D(SDL_Renderer* rendu,int nb_ligne, int* distances, int nb_rayon, int portee_vision){
 
   int hauteur_max_mur = HAUTEUR_ESPACE_AFFICHAGE - nb_ligne * TAILLE_MUR, compteur_rayon;
   SDL_Rect mur_3D;
 
-  mur_3D.w = 1900;
-  mur_3D.y = 0;
+  mur_3D.w = LONGUEUR_FENETRE;
+  mur_3D.h = FIN_RENDU_3D;
   mur_3D.x = 0;
-  mur_3D.h = 680;
+  mur_3D.y = 0;
+
+  //effacement de l'ancien rendu 3D
   COULEUR_NOIRE(rendu);
   SDL_RenderFillRect(rendu, &mur_3D);
   SDL_RenderPresent(rendu);
 
-
+ // printf("\n\n\n l'effacement s'est bien fait \n\n\n");
   mur_3D.w = LARGEUR_MUR;
   mur_3D.y = DEBUT_AFFICHAGE_3DY;
   mur_3D.x = DEBUT_AFFICHAGE_3DX;
 
-  
-   COULEUR_BLANCHE(rendu);
-  // SDL_RenderFillRect(rendu, &mur_3D);
-  // SDL_RenderPresent(rendu);
   
   if((nb_ligne == 0) || (distances == NULL) || (nb_rayon == 0) || (portee_vision == 0)){
     printf("Erreurs d'argument lors de l'affichage 3D : ");
     return ERREUR_AFFICHAGE_MAP;
   }
   else{
-        
-    for(compteur_rayon = 0; compteur_rayon < nb_rayon-1; compteur_rayon++){
-      if(distances[compteur_rayon] <= portee_vision + 1 ){
-        mur_3D.h = -10 * distances[compteur_rayon] + 760;
-        mur_3D.x += 25;
-        mur_3D.y = 9 * distances[compteur_rayon];
-        //mur_3D.x += compteur_rayon*25;
-        //mur_3D.y = mur_3D.h - 680;
-        //mur_3D.y = 680 * exp(-(distances[compteur_rayon]-7)*(distances[compteur_rayon]-7)/25);
-        //mur_3D.y = ((float)-DEBUT_AFFICHAGE_3DY/(float)69)*distances[compteur_rayon] - (float)((float)DEBUT_AFFICHAGE_3DY/(float)69)*76 + 680;
 
-        //printf(" Rayon %d   distance -> %d m\nhauteur = %d\t\t (%d/%d)\n",compteur_rayon+1,distances[compteur_rayon],mur_3D.h,mur_3D.x,mur_3D.y);
-        //mur_3D.y = (distances[compteur_rayon] * DEBUT_AFFICHAGE_3DY) / DISTANCE_MINIMAL;
+    COULEUR_BLANCHE(rendu);
+
+    for(compteur_rayon = 0; compteur_rayon < nb_rayon; compteur_rayon++){
+      if(distances[compteur_rayon] <= portee_vision ){
+        
+        mur_3D.h = - (COEFF_DIRECTEUR * distances[compteur_rayon]) + portee_vision*COEFF_DIRECTEUR;
+        mur_3D.x += LARGEUR_MUR;
+        mur_3D.y = (COEFF_DIRECTEUR-1) * distances[compteur_rayon];
         
         SDL_RenderFillRect(rendu, &mur_3D);
       }
     }
-    SDL_RenderPresent(rendu);
   }
+  
+  SDL_RenderPresent(rendu);
   return MAP_AFFICHEE_AVEC_SUCCES;
 }
 

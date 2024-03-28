@@ -7,9 +7,13 @@
     #include <stdlib.h>
     #include <math.h>
     #include "include/SDL.h"
+    #include <pthread.h>
 
     #define COULEUR_ROUGE(x) SDL_SetRenderDrawColor((x),255,0,0,SDL_ALPHA_OPAQUE)
     #define COULEUR_VERTE(x) SDL_SetRenderDrawColor((x),0,255,0,SDL_ALPHA_OPAQUE)
     #define COULEUR_BLANCHE(x) SDL_SetRenderDrawColor((x),255,255,255,SDL_ALPHA_OPAQUE)
     #define COULEUR_NOIRE(x) SDL_SetRenderDrawColor((x),0,0,0,SDL_ALPHA_OPAQUE)
+
+    #define LONGUEUR_FENETRE 1280
+    #define LARGEUR_FENETRE 720
 #endif

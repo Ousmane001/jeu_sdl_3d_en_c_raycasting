@@ -11,6 +11,7 @@
     #define PAS_DU_JOUEUR_MAP 1
     #define ERREUR_EVENEMENT -1
     #define JOUEUR_A_BOUGE 1
+    #define JOUEUR_OBSERVE 2
     #define JOUEUR_NE_BOUGE_PAS 0
     #define ERREUR_RENDERER_POSITION -2
     #define TAILLE_JOUEUR 15
@@ -21,7 +22,7 @@
     #define INDICE_MIN 0
     #define ECHEC_DESSIN -3
     #define DESSIN_REUSSI 0
-    #define ANGLE_SPECTRE_VISION 50
+    #define ANGLE_SPECTRE_VISION 70
     #define INCREMENTATION_VISION 10
     #define INCREMENTATION_ANGLE 2
     #define ANGLE_NULL 0
@@ -69,6 +70,7 @@
     int intersection_horizontale(int coordonnee_y, int angle);
     int est_une_intersection(int coordonnee_x, int coordonnee_y);
     int calculer_distance(int x1, int y1, int x2, int y2);
+    int balayer_regart(SDL_Event* evenement, int* debut_vision, int taille_fenetre, int spectre_vision);
 
 #endif
 

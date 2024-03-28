@@ -30,6 +30,8 @@
     #define DISTANCE_MINIMAL 7.5
     #define DEBUT_AFFICHAGE_3DX 25 
     #define DEBUT_AFFICHAGE_3DY 30
+    #define FIN_RENDU_3D 680
+    #define COEFF_DIRECTEUR 10
 
 
 
@@ -40,6 +42,6 @@
     int dessiner_un_mur_2D(SDL_Renderer* rendu, SDL_Rect* mur);
     int afficher_une_map(SDL_Renderer* rendu, int** map, int nombre_de_ligne, int nombre_de_colonne, int debut_x, int debut_y);
     int detruire_une_map(int*** map, int nombre_de_ligne);
-    int afficher_une_map_3D(SDL_Renderer* rendu,int nb_ligne, unsigned int* distances, int nb_rayon, int portee_vision);
+    int afficher_une_map_3D(SDL_Renderer* rendu,int nb_ligne, int* distances, int nb_rayon, int portee_vision);
     
 #endif

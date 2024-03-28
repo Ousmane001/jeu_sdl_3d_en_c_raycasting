@@ -325,9 +325,25 @@ int calculer_distance(int x1, int y1, int x2, int y2){
 
 /*-------------------------------------------------------------------------------------------------------------*/
 
+int balayer_regart(SDL_Event* evenement, int* debut_vision, int taille_fenetre, int spectre_vision){
+
+    if(evenement == NULL || debut_vision == NULL){
+        printf("Erreur d'evenement dans balayer_regard()\n ");
+        return ERREUR_EVENEMENT;
+    }
+    else{
+        *debut_vision += (int) (abs(evenement->motion.xrel)*(PI_DEGRE-spectre_vision)/taille_fenetre);
+        *debut_vision = *debut_vision % (2*PI_DEGRE);
+        return JOUEUR_OBSERVE;
+    }
+}
+
+
+/*-------------------------------------------------------------------------------------------------------------*/
+
 int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremite, int** map, int* distances){
     int compteur_intersection = 0, save_position;
-    float dx = CENTRE,dy = CENTRE,coeff_dir = CENTRE;
+    float dx = CENTRE,dy = CENTRE,coeff_dir = CENTRE;printf("\nangle = %d\n",angle);
 
     if((position == NULL) || (extremite == NULL) || (map == NULL)){
         printf("Erreur : position joueur ou extremite ou map invalide dans chercher_extremite_rayon() .\n");
@@ -402,6 +418,23 @@ int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremit
                 }
             }
             break;
+        case PI_SUR_4 : 
+            while((*distances = calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy))) < PORTEE_VISION){
+                // si le rayon n'a pas encore bougé :
+                if((dx == CENTRE) && (dy == CENTRE)){
+                    dy -= TAILLE_JOUEUR/2;
+                    dx += TAILLE_JOUEUR/2;
+                }
+                else{
+                    dy -= TAILLE_JOUEUR;
+                    dx += TAILLE_JOUEUR;
+                }
+                // verification de s'il on hurte un mur ou pas avec les bonnes coordonnees :
+                if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x + dx,DECREMENTATION),incrementer_ou_decrementer_une_coordonnee((extremite->y + dy - TAILLE_JOUEUR),DECREMENTATION),map) == OUI){
+                    return POSITION_SUCCES;
+                }
+            }
+            break;
 
         default:
             
@@ -442,7 +475,7 @@ int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremit
                     extremite->x += dx;
                     extremite->y += dy;
                 }
-                else{
+                else if (angle < PI_SUR_2){
                     // si l'angle est compris entre 45° et 90°:
                     coeff_dir = (float)tanl(conversion_radian_angle(PI_SUR_2 - angle));
                     while((*distances = calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy))) < PORTEE_VISION && (abs(dy) < extremite->y-TAILLE_MUR)){
@@ -476,12 +509,12 @@ int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremit
                     extremite->y += dy;
                 }
             }
-            else{
+            else if(angle < PI_DEGRE) {
                 // si l'angle fait partie du 2em cadran :
                 // et si enplus il est compris entre 90° et 135°
                 if(angle < PI_SUR_2 + PI_SUR_4){
                     coeff_dir = (float)tanl(conversion_radian_angle(angle - PI_SUR_2));
-                    while((calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy)) < PORTEE_VISION) && (abs(dy) < extremite->y-TAILLE_MUR)&& (abs(dx) < extremite->x-TAILLE_MUR)){
+                    while((*distances = calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy))) < PORTEE_VISION && (abs(dy) < extremite->y-TAILLE_MUR)&& (abs(dx) < extremite->x-TAILLE_MUR)){
                         // si le rayon n'a pas encore bouge alors on le lance a l'exterieur du rectangle joueur :
                         if((dx == CENTRE) && (dy == CENTRE)){
                             dy -= TAILLE_JOUEUR/2;
@@ -515,7 +548,7 @@ int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremit
                     if(angle < PI_DEGRE){
                     // si l'angle est dans la 2em moitier du 2iem cadran :
                     coeff_dir = (float)tanl(conversion_radian_angle(PI_DEGRE - angle));
-                    while((calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy)) < PORTEE_VISION) && (abs(dy) < extremite->y-TAILLE_MUR)&& (abs(dx) < extremite->x-TAILLE_MUR)){
+                    while((*distances = calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy))) < PORTEE_VISION && (abs(dy) < extremite->y-TAILLE_MUR)&& (abs(dx) < extremite->x-TAILLE_MUR)){
                         // si le rayon n'a pas encore bouge alors on le lance a l'exterieur du rectangle joueur :
                         if((dx == CENTRE) && (dy == CENTRE)){
                             dx -= TAILLE_JOUEUR/2;
@@ -554,7 +587,7 @@ int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremit
                     // et s'il s'agit de la premiere partie du cadran 3
                     if(angle < PI_DEGRE + PI_SUR_4){
                         coeff_dir = (float)tanl(conversion_radian_angle(angle - PI_DEGRE));
-                        while((calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy)) < PORTEE_VISION) && (abs(dx) < extremite->x - TAILLE_MUR) ){
+                        while((*distances = calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy))) < PORTEE_VISION && (abs(dx) < extremite->x - TAILLE_MUR) ){
                             // si le rayon n'a pas encore bouge alors on le lance a l'exterieur du rectangle joueur :
                             if((dx == CENTRE) && (dy == CENTRE)){
                                 dx -= TAILLE_JOUEUR/2;
@@ -564,19 +597,19 @@ int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremit
                                 dx--;
                                 dy += coeff_dir;
                             }
-
+                            
                             // on verifie s'il le rayon intersecte un mur ou pas:
                             if(est_une_intersection(extremite->x + dx, extremite->y + dy) == INTERSECTION_VERTICALE){
                                 if(est_ce_un_mur(extremite->x + dx - TAILLE_JOUEUR,incrementer_ou_decrementer_une_coordonnee(extremite->y + dy,DECREMENTATION),map) == OUI){
                                     extremite->x += dx;
-                                    extremite->y += dy;
+                                    extremite->y += dy;printf(" dx = %.0f  dy =  %.2f \n",dx,dy);
                                     return POSITION_SUCCES;
                                 }
                             }
                             else if(est_une_intersection(extremite->x + dx,extremite->y + dy) == INTERSECTION_HORIZONTALE){
                                 if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x + dx,DECREMENTATION),incrementer_ou_decrementer_une_coordonnee(extremite->y + dy,DECREMENTATION),map) == OUI){
                                     extremite->x += dx;
-                                    extremite->y += dy;
+                                    extremite->y += dy;printf(" dx = %.0f  dy =  %.2f \n",dx,dy);
                                     return POSITION_SUCCES;
                                 }
                             }
@@ -588,7 +621,7 @@ int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremit
                         // sinon s'il est dans sa 2em partie
                         printf("2em partie\n");
                         coeff_dir = (float)tanl(conversion_radian_angle((PI_DEGRE + PI_SUR_2) - angle));
-                        while((calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy)) <= PORTEE_VISION) && ((extremite->x + dx) >= TAILLE_MUR) ){
+                        while((*distances = calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy))) < PORTEE_VISION && ((extremite->x + dx) >= TAILLE_MUR) ){
                             // si le rayon n'a pas encore bouge alors on le lance a l'exterieur du rectangle joueur :
                             if((dx == CENTRE) && (dy == CENTRE)){
                                 dy += TAILLE_JOUEUR/2;
@@ -602,14 +635,14 @@ int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremit
                             if(est_une_intersection(extremite->x + dx, extremite->y + dy) == INTERSECTION_VERTICALE){
                                 if(est_ce_un_mur(extremite->x + dx ,incrementer_ou_decrementer_une_coordonnee(extremite->y + dy,DECREMENTATION),map) == OUI){
                                     extremite->x += dx;
-                                    extremite->y += dy;
+                                    extremite->y += dy;printf(" dx = %.0f  dy =  %.2f \n",dx,dy);
                                     return POSITION_SUCCES;
                                 }
                             }
                             else if(est_une_intersection(extremite->x + dx,extremite->y + dy) == INTERSECTION_HORIZONTALE){
                                 if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x + dx,DECREMENTATION), extremite->y + dy, map) == OUI){
                                     extremite->x += dx;
-                                    extremite->y += dy;
+                                    extremite->y += dy;printf(" dx = %.0f  dy =  %.2f \n",dx,dy);
                                     return POSITION_SUCCES;
                                 }
                             }
@@ -626,7 +659,7 @@ int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremit
 
                             //s'il s'agit de la premiere partie :
                             coeff_dir = (float)tanl(conversion_radian_angle(angle - (PI_DEGRE + PI_SUR_2)));
-                            while(calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy)) < PORTEE_VISION){
+                            while((*distances = calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy))) < PORTEE_VISION){
                                 // si le rayon n'a pas encore bouge alors on le lance a l'exterieur du rectangle joueur :
                                 
                                 if((dx == CENTRE) && (dy == CENTRE)){
@@ -644,14 +677,14 @@ int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremit
                                 if(est_une_intersection(extremite->x+dx,extremite->y+dy) == INTERSECTION_VERTICALE){
                                     if(est_ce_un_mur(extremite->x+dx,incrementer_ou_decrementer_une_coordonnee(extremite->y+dy,DECREMENTATION),map) == OUI){
                                         extremite->x += dx;
-                                        extremite->y += dy;
+                                        extremite->y += dy;printf(" dx = %.0f  dy =  %.2f \n",dx,dy);
                                         return POSITION_SUCCES;
                                     }
                                 }
                                 else if(est_une_intersection(extremite->x+dx,extremite->y+dy) == INTERSECTION_HORIZONTALE){
                                     if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x+dx,DECREMENTATION),extremite->y+dy,map) == OUI){
                                         extremite->x += dx;
-                                        extremite->y += dy;
+                                        extremite->y += dy;printf(" dx = %.0f  dy =  %.2f \n",dx,dy);
                                         return POSITION_SUCCES;
                                     }
                                 }
@@ -659,11 +692,11 @@ int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremit
                             extremite->x += dx;
                             extremite->y += dy;
                         }
-                        else{
+                        else if (angle < 2*PI_DEGRE){
 
                             // si en plus c'est sur la derniere partie du quadrant
                             coeff_dir = (float)tanl(conversion_radian_angle(2*PI_DEGRE - angle));
-                            while(calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy)) < PORTEE_VISION){
+                            while((*distances = calculer_distance((extremite->x),(extremite->y),(extremite->x + dx),(extremite->y + dy))) < PORTEE_VISION){
                                 // si le rayon n'a pas encore bouge alors on le lance a l'exterieur du rectangle joueur :
                                 if((dx == CENTRE) && (dy == CENTRE)){
                                     dx += TAILLE_JOUEUR/2;
@@ -680,14 +713,14 @@ int chercher_extremite_rayon(SDL_Point* position, int angle, SDL_Point* extremit
                                 if(est_une_intersection(extremite->x + dx, extremite->y + dy) == INTERSECTION_VERTICALE){
                                     if(est_ce_un_mur(extremite->x + dx,incrementer_ou_decrementer_une_coordonnee(extremite->y + dy,DECREMENTATION),map) == OUI){
                                         extremite->x += dx;
-                                        extremite->y += dy;
+                                        extremite->y += dy;printf(" dx = %.0f  dy =  %.2f \n",dx,dy);
                                         return POSITION_SUCCES;
                                     }
                                 }
                                 else if(est_une_intersection(extremite->x + dx,extremite->y + dy) == INTERSECTION_HORIZONTALE){
                                     if(est_ce_un_mur(incrementer_ou_decrementer_une_coordonnee(extremite->x + dx,DECREMENTATION),extremite->y + dy,map) == OUI){
                                         extremite->x += dx;
-                                        extremite->y += dy;
+                                        extremite->y += dy;printf(" dx = %.0f  dy =  %.2f \n",dx,dy);
                                         return POSITION_SUCCES;
                                     }
                                 }
