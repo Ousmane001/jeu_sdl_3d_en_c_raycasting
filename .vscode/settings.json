@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "entetes_sdl.h": "c"
+        "entetes_sdl.h": "c",
+        "map.h": "c",
+        "joueur.h": "c"
     }
 }

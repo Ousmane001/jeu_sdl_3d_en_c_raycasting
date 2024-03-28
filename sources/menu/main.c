@@ -1,13 +1,7 @@
-#include "menu.h"
-
-	
+#include "../game/game.h"
 
 int main(int argc, char** argv) {
-// Déclarations des variables globales
-	SDL_Window *window;
-	SDL_Renderer *renderer;
-	TTF_Font *font;
-	bool fullscreen = false;
+
     if (initSDL() != 0) {
         return -1;
     }
@@ -63,7 +57,7 @@ int main(int argc, char** argv) {
         SDL_RenderPresent(renderer);
     }
 
-    cleanup();
+    void cleanup();
 
     return 0;
 }

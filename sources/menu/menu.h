@@ -1,15 +1,10 @@
 #ifndef MENU_H
-#define MENU_H
 
+	#define MENU_H
 	#include <stdio.h>
-	#include <SDL.h>
-	#include <SDL_ttf.h>
+	#include <SDL2/SDL.h>
+	#include <SDL2/SDL_ttf.h>
 	#include <stdbool.h>
-
-	//Macro-constantes pour les couleurs
-	#define LONGUEUR_FENETRE 720
-	#define LARGEUR_FENETRE 480
-	#define WINDOW_WIDTH 720
 
 	// Macro-constantes pour les couleurs
 	#define RED_COLOR (SDL_Color){255, 0, 0, 255}
@@ -22,6 +17,9 @@
 	// Macro-constante pour le chemin de la police
 	#define FONT_PATH "arial.ttf"
 
+	extern SDL_Window *window;
+	extern SDL_Renderer *renderer;
+	extern TTF_Font *font;
 	// Structure générique pour un bouton
 	typedef struct {
 	    int x, y, w, h;

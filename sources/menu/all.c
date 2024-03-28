@@ -26,8 +26,8 @@ gcc main.c -o prog $(sdl2-config --cflags --libs) -lSDL_TTF
 
 
 	#include <stdio.h>
-	#include <SDL.h>
-	#include <SDL_ttf.h> 
+	#include <SDL2/SDL.h>
+	#include <SDL2/SDL_ttf.h>
 	#include <stdbool.h> //Pour le type de données bool
 	
 	//#include "../game/game.h"

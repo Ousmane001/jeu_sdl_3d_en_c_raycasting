@@ -1,4 +1,51 @@
-#include "menu.h"
+#include "../game/game.h"
+
+// Déclarations des variables globales
+	SDL_Window *window;
+	SDL_Renderer *renderer;
+	TTF_Font *font;
+	bool fullscreen = false;
+
+    // Initialisation de la SDL et de SDL_ttf
+int initSDL() {
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        SDL_Log("Erreur SDL_Init : %s", SDL_GetError());
+        return -1;
+    }
+
+
+    if (TTF_Init() != 0) {
+        SDL_Log("Erreur TTF_Init : %s", TTF_GetError());
+        SDL_Quit();
+        return -1;
+    }
+
+    window = SDL_CreateWindow("Menu Principal", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, LONGUEUR_FENETRE, LARGEUR_FENETRE, 0);
+    if (!window) {
+        SDL_Log("Erreur SDL_CreateWindow : %s", SDL_GetError());
+        SDL_Quit();
+        return -1;
+    }
+
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (!renderer) {
+        SDL_Log("Erreur SDL_CreateRenderer : %s", SDL_GetError());
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return -1;
+    }
+
+    font = TTF_OpenFont(FONT_PATH, 24);
+    if (!font) {
+        SDL_Log("Erreur TTF_OpenFont : %s", TTF_GetError());
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        return -1;
+    }
+
+    return 0;
+}
 
 // Initialisation des boutons
 void initButton(Button *button, int x, int y, int w, int h, SDL_Color color, const char *text) {
@@ -50,25 +97,25 @@ void displayOptions() {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        // Draw the options menu
-        SDL_Color textColor = {255, 255, 255}; // White color
+        // affiche option
+        SDL_Color textColor = {255, 255, 255}; // couleur blanche
         SDL_Rect textRect;
 
-        // Example: Displaying a title
-        TTF_Font* font = TTF_OpenFont("arial.ttf", 36); // Load a font (change the path as needed)
+        // affiche le titre
+        TTF_Font* font = TTF_OpenFont("arial.ttf", 36); // charge la police
         if (!font) {
             fprintf(stderr, "Erreur lors du chargement de la police : %s\n", TTF_GetError());
             return;
         }
 
-        SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Options", textColor); // Render text to surface
+        SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Options", textColor); // Render le texte
         if (!textSurface) {
             fprintf(stderr, "Erreur lors du rendu du texte : %s\n", TTF_GetError());
             TTF_CloseFont(font);
             return;
         }
 
-        SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface); // Create texture from surface
+        SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface); // cree la texture pour le texte
         if (!textTexture) {
             fprintf(stderr, "Erreur lors de la création de la texture : %s\n", SDL_GetError());
             SDL_FreeSurface(textSurface);
@@ -76,25 +123,24 @@ void displayOptions() {
             return;
         }
 
-        // Positioning the text
-        textRect.x = (WINDOW_WIDTH - textSurface->w) / 2; // Center horizontally
-        textRect.y = 50; // 50 pixels from the top
+        // Position du texte
+        textRect.x = (LONGUEUR_FENETRE - textSurface->w) / 2; // centrer horizontlemnt
+        textRect.y = 50; // 50 pixels pa rapport eu "top" de l'ecran
         textRect.w = textSurface->w;
         textRect.h = textSurface->h;
 
-        // Rendering the text
+        // Render le texte
         SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
 
-        // Clean up
+        // clean l'ecrarn
         SDL_FreeSurface(textSurface);
         SDL_DestroyTexture(textTexture);
         TTF_CloseFont(font);
 
-        // Example: Displaying options settings (adjust sound, fullscreen, etc.)
-        // Implement your options menu here...
+        // ajout des optins ici
 
-        // Example: Toggle fullscreen option
-        TTF_Font* optionFont = TTF_OpenFont("arial.ttf", 24); // Load a font for options
+        // plein ecran
+        TTF_Font* optionFont = TTF_OpenFont("arial.ttf", 24); // charge la police (font)
         if (!optionFont) {
             fprintf(stderr, "Erreur lors du chargement de la police : %s\n", TTF_GetError());
             return;
@@ -128,7 +174,7 @@ void displayOptions() {
 
 
 
-        // Draw "Return to main menu (Escape)"
+        //  affiche (Escape)"
 	TTF_Font* escapeFont = TTF_OpenFont("arial.ttf", 20); // Load a font for options
         if (!optionFont) {
             fprintf(stderr, "Erreur lors du chargement de la police : %s\n", TTF_GetError());
@@ -152,7 +198,7 @@ void displayOptions() {
 
         SDL_Rect escapeRect;
         escapeRect.x = 100; // Position X de l'echap
-        escapeRect.y = 500; // Position Y de l'echap
+        escapeRect.y = 650; // Position Y de l'echap
         escapeRect.w = escapeSurface->w;
         escapeRect.h = escapeSurface->h;
 
@@ -199,29 +245,29 @@ void displayCredits() {
 	bool quitCredits = false; // Variable pour suivre si l'utilisateur souhaite quitter le menu des credits
 
     while (!quitCredits) { // Boucle jusqu'à ce que l'utilisateur choisisse de quitter le menu des Credits
-        // Clear the screen
+        // nettoyage the screen
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        // Draw the credits menu
-        SDL_Color textColor = {255, 255, 255}; // White color
+        // afficher les credits
+        SDL_Color textColor = {255, 255, 255}; // couleur blanche
         SDL_Rect textRect;
 
-        // Example: Displaying a title
-        TTF_Font* font = TTF_OpenFont("arial.ttf", 36); // Load a font (change the path as needed)
+        // afficher un titre
+        TTF_Font* font = TTF_OpenFont("arial.ttf", 36); // charge la police (font)
         if (!font) {
             fprintf(stderr, "Erreur lors du chargement de la police : %s\n", TTF_GetError());
             return;
         }
 
-        SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Credits", textColor); // Render text to surface
+        SDL_Surface* textSurface = TTF_RenderText_Solid(font, "Credits", textColor); // affiche le texte 
         if (!textSurface) {
             fprintf(stderr, "Erreur lors du rendu du texte : %s\n", TTF_GetError());
             TTF_CloseFont(font);
             return;
         }
 
-        SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface); // Create texture from surface
+        SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface); // cree une surface
         if (!textTexture) {
             fprintf(stderr, "Erreur lors de la création de la texture : %s\n", SDL_GetError());
             SDL_FreeSurface(textSurface);
@@ -229,16 +275,16 @@ void displayCredits() {
             return;
         }
 
-        // Positioning the text
-        textRect.x = (WINDOW_WIDTH - textSurface->w) / 2; // Center horizontally
-        textRect.y = 50; // 50 pixels from the top
+        // position du texte
+        textRect.x = (LONGUEUR_FENETRE - textSurface->w) / 2; // centrer horizontalement
+        textRect.y = 50; // 50 pixels par rapport au "top" de l'ecran
         textRect.w = textSurface->w;
         textRect.h = textSurface->h;
 
-        // Rendering the text
+        // Render le texte
         SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
 
-        // Clean up
+        // netoyage
         SDL_FreeSurface(textSurface);
         SDL_DestroyTexture(textTexture);
         TTF_CloseFont(font);
@@ -246,7 +292,7 @@ void displayCredits() {
         // ajouts de noms dans les credits ici
 
         // noms
-        TTF_Font* optionFont = TTF_OpenFont("arial.ttf", 16); // Load a font for options
+        TTF_Font* optionFont = TTF_OpenFont("arial.ttf", 22); // charge la police (font)
         if (!optionFont) {
             fprintf(stderr, "Erreur lors du chargement de la police : %s\n", TTF_GetError());
             return;
@@ -270,7 +316,7 @@ void displayCredits() {
         }
 
         SDL_Rect optionRect;
-        optionRect.x = 100; // Position X des credits
+        optionRect.x = 200; // Position X des credits
         optionRect.y = 250; // Position Y des credits
         optionRect.w = optionSurface->w;
         optionRect.h = optionSurface->h;
@@ -282,8 +328,8 @@ void displayCredits() {
 
 
 
-        // Draw "Return to main menu (Escape)"
-	TTF_Font* escapeFont = TTF_OpenFont("arial.ttf", 20); // Load a font for options
+        // afficher Escape"
+	TTF_Font* escapeFont = TTF_OpenFont("arial.ttf", 20); // charger la police (font)
         if (!optionFont) {
             fprintf(stderr, "Erreur lors du chargement de la police : %s\n", TTF_GetError());
             return;
@@ -306,7 +352,7 @@ void displayCredits() {
 
         SDL_Rect escapeRect;
         escapeRect.x = 100; // Position X de l'echap
-        escapeRect.y = 500; // Position Y de l'echap
+        escapeRect.y = 650; // Position Y de l'echap
         escapeRect.w = escapeSurface->w;
         escapeRect.h = escapeSurface->h;
 
